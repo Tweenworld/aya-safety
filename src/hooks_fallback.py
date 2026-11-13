@@ -1,7 +1,7 @@
 import torch
 
 class ResidualSteerer:
-    """Attaches additive unit refusal vectors to Tiny Aya's decoder layers."""
+    """Attaches additive unit refusal vectors to Cohere2ForCausalLM decoder layers."""
     def __init__(self, model, layer_indices: list[int], direction: torch.Tensor, scale: float):
         self.model = model
         self.layer_indices = layer_indices
