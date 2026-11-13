@@ -1,0 +1,11 @@
+.venv/
+envs/
+__pycache__/
+*.pyc
+.env
+artifacts/raw/
+artifacts/generations/
+artifacts/sweeps/
+*.pt
+*.joblib
+.DS_Store

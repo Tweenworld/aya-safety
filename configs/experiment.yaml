@@ -1,0 +1,33 @@
+﻿model_id: CohereLabs/tiny-aya-earth
+dtype: float16
+padding_side: left
+batch_size: 8
+max_new_tokens:
+  proxy: 32
+  full: 256
+  flores: 64
+seeds:
+  split: 1234
+  bootstrap: 4321
+splits:
+  calibrate: 0.30
+  dev: 0.20
+  test: 0.50
+languages: [en, sw, mix]
+layers:
+  frac_lo: 0.40
+  frac_hi: 0.85
+  stride: 2
+strengths: [0.25, 0.5, 1.0]
+selection:
+  max_overrefusal_items: 2
+  min_coherence_ratio: 0.95
+staging_repo: LeoCleinte/aya-safety-staging
+use_fallback_hooks: false
+judge:
+  primary_model: gemini/gemini-3.8-flash
+  backup_model: openrouter/nvidia/nemotron-3.5-super-vl:free
+  temperature: 0
+  rpm_limit: 8
+  items_per_call: 8
+frozen: null
