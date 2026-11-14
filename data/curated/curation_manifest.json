@@ -1,16 +1,16 @@
 {
-  "total_rows": 36,
-  "total_scenarios": 6,
+  "total_rows": 360,
+  "total_scenarios": 60,
   "dropped_duplicates": 0,
   "split_counts": {
-    "test": 24,
-    "dev": 6,
-    "calibrate": 6
+    "calibrate": 150,
+    "test": 132,
+    "dev": 78
   },
   "lang_counts": {
-    "en": 12,
-    "sw": 12,
-    "mix": 12
+    "en": 120,
+    "sw": 120,
+    "mix": 120
   },
-  "dataset_sha256": "a7d2c83d2b19dfd9e52a52d40ae9c0e048b4b8521b917081e490cfc3ad41cd4a"
+  "dataset_sha256": "38f0e9d122daa83d1f2c2463082d881825096de2b258475d981bb10ee6d3d390"
 }

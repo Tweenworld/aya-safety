@@ -1,7 +1,7 @@
 ﻿model_id: CohereLabs/tiny-aya-earth
 dtype: float16
 padding_side: left
-batch_size: 8
+batch_size: 16
 max_new_tokens:
   proxy: 32
   full: 256

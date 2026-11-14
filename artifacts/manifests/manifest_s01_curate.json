@@ -1,8 +1,8 @@
 {
   "stage": "s01_curate",
-  "timestamp_utc": "2026-11-13T14:13:46.509562+00:00",
-  "git_sha": "uncommitted",
-  "config_hash": "42e32ab4696e9ac3",
+  "timestamp_utc": "2026-11-14T09:18:39.811931+00:00",
+  "git_sha": "c87a852522e3d9e2931d9c33f11cfa2e3ff05f25",
+  "config_hash": "08f6493661d9ad34",
   "python_version": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
   "packages": [
     "Faker==40.54.0",
@@ -145,20 +145,20 @@
     "zipp==4.1.2"
   ],
   "extra": {
-    "total_rows": 36,
-    "total_scenarios": 6,
+    "total_rows": 360,
+    "total_scenarios": 60,
     "dropped_duplicates": 0,
     "split_counts": {
-      "test": 24,
-      "dev": 6,
-      "calibrate": 6
+      "calibrate": 150,
+      "test": 132,
+      "dev": 78
     },
     "lang_counts": {
-      "en": 12,
-      "sw": 12,
-      "mix": 12
+      "en": 120,
+      "sw": 120,
+      "mix": 120
     },
-    "dataset_sha256": "a7d2c83d2b19dfd9e52a52d40ae9c0e048b4b8521b917081e490cfc3ad41cd4a"
+    "dataset_sha256": "38f0e9d122daa83d1f2c2463082d881825096de2b258475d981bb10ee6d3d390"
   },
   "torch_version": "2.15.0+cpu",
   "cuda_available": false
