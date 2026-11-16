@@ -4,8 +4,10 @@ __pycache__/
 *.pyc
 .env
 artifacts/raw/
+artifacts/v2/private/
 artifacts/generations/
 artifacts/sweeps/
 *.pt
 *.joblib
 .DS_Store
+AGENTS.md
