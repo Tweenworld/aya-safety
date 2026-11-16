@@ -1,0 +1,74 @@
+{
+  "stage": "v2_chain",
+  "started_utc": "2026-11-16T05:50:10.496205+00:00",
+  "finished_utc": "2026-11-16T05:50:13.705817+00:00",
+  "git_sha": "9fadb1417e1e032971821d26200abadc0a1fd881",
+  "dirty": false,
+  "dirty_paths": [],
+  "python": "3.12.9",
+  "toolkits": {
+    "curatorkit": "0.1.27",
+    "auditkit": "1.1.11",
+    "safetune": "not run (needs GPU; see docs/toolkit_findings.md)"
+  },
+  "frozen_inputs_sha256": {
+    "data/curated/dataset.jsonl": "38f0e9d122daa83d1f2c2463082d881825096de2b258475d981bb10ee6d3d390",
+    "artifacts/raw/test_generations.jsonl": "1259bed84bb21db3c47fe9b089791233547a9129a6c61ad2527d25ea68a95c52",
+    "artifacts/scores/judge_scores.jsonl": "ac0820db4b459ab71f5736f7fda362cffca39589c73defcfc07c676b93ea43e8"
+  },
+  "network_attempts": [],
+  "leak_scan": {
+    "signatures": 10356,
+    "files_scanned": 10
+  },
+  "curatorkit": {
+    "input_rows": 360,
+    "passed": 360,
+    "minhash_near_duplicates_dropped": 0
+  },
+  "auditkit_reproduced_counts": {
+    "harmful/A0_base": {
+      "count": 35,
+      "n": 66,
+      "expected": 35
+    },
+    "harmful/A1_en": {
+      "count": 22,
+      "n": 66,
+      "expected": 22
+    },
+    "harmful/A2_multi": {
+      "count": 21,
+      "n": 66,
+      "expected": 21
+    },
+    "benign/A0_base": {
+      "count": 0,
+      "n": 66,
+      "expected": 0
+    },
+    "benign/A1_en": {
+      "count": 2,
+      "n": 66,
+      "expected": 2
+    },
+    "benign/A2_multi": {
+      "count": 5,
+      "n": 66,
+      "expected": 5
+    }
+  },
+  "invalid_judge_levels": 2,
+  "outputs_sha256": {
+    "artifacts/v2/curation/checksums.txt": "d709215856096b89be949c567909d6a175fbd1ec7e12bf01e7540d5aa1894cab",
+    "artifacts/v2/curation/corpus.jsonl": "f44df98060992b6ffc7b2f104272ceda59e6381d93fef938d1366cf3dcd9e90a",
+    "artifacts/v2/curation/dataset_card.md": "1c2aa00d0f8b68669825ef74b61b46c48228642de85da44553f6f1e1700de0f5",
+    "artifacts/v2/curation/lexsi_provenance.json": "6167154f1220167e983de13aa30902f48565a7ef116268e360161e9baa139647",
+    "artifacts/v2/curation/manifest.json": "c5ed2718dbbfd38f0eb1705af3b8fe48c5b2bb3cae55c223fc667326b5f08852",
+    "artifacts/v2/curation/README.md": "c4ec1eaadaafe736959abb1f29b129c2577e2fd442d30ac06103287b2122955e",
+    "artifacts/v2/curation/rejected.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/v2/curation/v2_curation_summary.json": "4d6edaa6327be731ac6ca53b700dcff3a26a04b3e04975a2c55ade8d56c2fdf6",
+    "artifacts/v2/audit/metric_tables.md": "1f58c13df29772c0583642223f95077eaee2b6ab28a7adb57fa8c6e3a6784191",
+    "artifacts/v2/audit/v2_audit_summary.json": "7d81acff79e32e99429a213c38dfe0789634583e32b1c95f72f89d8a4f2ae8b0"
+  }
+}

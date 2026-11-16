@@ -1,0 +1,41 @@
+{
+  "tool": "curatorkit 0.1.27",
+  "input": "data/curated/dataset.jsonl",
+  "input_rows": 360,
+  "passed": 360,
+  "rejected_by_gate": [],
+  "minhash_near_duplicates_dropped": 0,
+  "near_duplicates_by_lang_role": {},
+  "near_duplicates_by_split": {},
+  "near_duplicate_rows": [],
+  "stage_counts": {
+    "JSONLReader": {
+      "output_count": 360,
+      "rejected_count": 0
+    },
+    "SchemaGate": {
+      "input_count": 360,
+      "output_count": 360,
+      "probe_recovered": 0,
+      "rejected_count": 0
+    },
+    "ExactDeduplicator": {
+      "input_count": 360,
+      "output_count": 360
+    },
+    "MinHashDeduplicator": {
+      "input_count": 360,
+      "output_count": 360
+    }
+  },
+  "interpretation_note": "Audit only. The frozen dataset is unchanged. Near-duplicates are expected by design (harmful/benign twins and code-mixed variants share wording); this is reported, not acted on.",
+  "curatorkit_files": [
+    "artifacts/v2/curation/README.md",
+    "artifacts/v2/curation/checksums.txt",
+    "artifacts/v2/curation/corpus.jsonl",
+    "artifacts/v2/curation/dataset_card.md",
+    "artifacts/v2/curation/lexsi_provenance.json",
+    "artifacts/v2/curation/manifest.json",
+    "artifacts/v2/curation/rejected.jsonl"
+  ]
+}
