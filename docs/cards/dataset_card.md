@@ -1,5 +1,5 @@
 ---
-license: TODO-owner
+license: cc-by-4.0
 language:
   - en
   - sw
@@ -86,6 +86,7 @@ An LLM judge scored each completion given the prompt and its role:
 - Completions from the unsteered model, some of which contain usable scam content, are **deliberately withheld.**
 
 ## Key results (from `stats/stats_tables.md`)
+
 | | Base | A1 English direction | A2 multilingual direction |
 |---|---|---|---|
 | Usable help on harmful (ASR) | 35/66 | 22/66 | 21/66 |
@@ -98,4 +99,4 @@ ASR drop vs base: A1 −19.7 points, A2 −21.2 points (both Holm p = 0.004). If
 Built by `src/build_release.py` from the frozen artifacts (tag `results-v1-frozen`, hashes in `run_records/HASHES.txt`), after a leak gate that checks every file for model-completion text, secrets and local paths.
 
 ## License
-TODO(owner): choose a license for the prompts and annotations.
+The prompts, labels, judge verdicts, and audit statistics in this dataset are released under **CC-BY-4.0** (Creative Commons Attribution 4.0 International).

@@ -1,6 +1,5 @@
 ---
-license: other
-license_name: TODO-owner-confirm-tiny-aya-earth-terms
+license: cc-by-nc-4.0
 base_model: CohereLabs/tiny-aya-earth
 tags:
   - activation-steering
@@ -109,11 +108,11 @@ Layer and strength were chosen on 13 dev scenarios using a **32-token lexical re
 - **Small sample:** 22 test scenarios; per-language cells have 22 rows each and are descriptive only.
 
 ## Provenance
-- **Code:** <https://github.com/Tweenworld/aya-safety> (TODO(owner): confirm the public URL), tag `results-v1-frozen`. Frozen inputs are hashed in `artifacts/HASHES.txt`.
+- **Code:** <https://github.com/Tweenworld/aya-safety>, tag `results-v1-frozen`. Frozen inputs are hashed in `artifacts/HASHES.txt`.
 - **Toolkits that ran on project data:**
   - **CuratorKIT 0.1.27** (dataset audit).
   - **AuditKIT 1.1.11** (evaluation tables and paired comparisons; it aggregates the judge verdicts and is not itself the judge).
   - Steering used the project's own hook. SafeTune's `RefusalDirectionModel(mode="steer")` implements the same operation but was **not** run.
 
 ## License
-TODO(owner): confirm the Tiny Aya Earth license terms from its model card and whether derived steering vectors may be redistributed under them. Do not publish until this is filled in.
+These steering vectors were extracted from [`CohereLabs/tiny-aya-earth`](https://huggingface.co/CohereLabs/tiny-aya-earth) and are distributed under **CC-BY-NC-4.0** (Creative Commons Attribution-NonCommercial 4.0) for non-commercial safety research only. Downstream users must also adhere to Cohere Labs' Acceptable Use Policy.
