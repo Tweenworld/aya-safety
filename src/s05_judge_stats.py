@@ -55,6 +55,7 @@ def judge_batch(items: list[dict], cfg: dict) -> tuple[list[dict], str]:
                     model=model_name,
                     messages=messages,
                     temperature=cfg["judge"]["temperature"],
+                    timeout=25,
                     extra_body=extra if extra else None,
                 )
                 content = resp.choices[0].message.content

@@ -119,7 +119,7 @@ def run_final_gen(resume: bool = True) -> None:
     with open(scores_dir / "selected_dev_configs.json", "r", encoding="utf-8") as f:
         selected = json.load(f)
 
-    dtype = torch.bfloat16 if (torch.cuda.is_available() and torch.cuda.get_device_capability(0) >= 8) else torch.float16
+    dtype = torch.bfloat16 if (torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0] >= 8) else torch.float16
     tokenizer = AutoTokenizer.from_pretrained(cfg["model_id"], padding_side="left")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
