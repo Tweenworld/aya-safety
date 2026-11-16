@@ -1,83 +1,156 @@
+"""Assemble the Hugging Face release folders and refuse to finish unless they are provably clean.
+
+Layout (release/ is a build product: regenerated from scratch, never edited by hand, not in git):
+    release/model/    steering vectors, norms, selected configs, config, loader, model card
+    release/dataset/  prompts, judge verdicts (no completions), stats, AuditKIT/CuratorKIT outputs,
+                      run records, dataset card
+
+Design decisions:
+- Every input is REQUIRED. The previous version copied files "if they exist", so a missing vector
+  produced a quietly incomplete release that still passed. Here a missing input is an error.
+- The leak gate shares its completion fingerprints with src/prepush_check.py, so GitHub and Hugging
+  Face are protected by one definition of "leak" instead of two that can drift apart.
+- The gate scans every file, not a whitelist of extensions, and reads binaries as text with
+  errors ignored: a completion pasted into an unexpected file type must still be caught.
+- Probes (artifacts/probes/*.joblib) are deliberately not shipped: they are pooled, lexically
+  separable classifiers (AGENTS.md G-REL-3) and add pickle-loading risk for no analytical value.
+- capability_chrf.json is not shipped: it was computed on a 5-sentence fallback, not FLORES,
+  and shipping it would invite exactly the capability claim the cards say is unsupported.
+- The release manifest is written to artifacts/v2/, never artifacts/manifests/, whose files are
+  frozen and hashed (AGENTS.md rule 1).
+
+Usage: python src/build_release.py
+"""
+import hashlib
 import json
+import re
 import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
-import pandas as pd
-from common import ROOT, write_manifest
 
-FORBIDDEN_COLS = {"completion", "pred_A0_base", "pred_A2_multi", "generated_text"}
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+from prepush_check import LOCAL_PATH, SECRET_PATTERNS, completion_signatures  # noqa: E402
+
+REL = ROOT / "release"
+MANIFEST = ROOT / "artifacts/v2/release_manifest.json"
+
+# (source relative to repo root, destination relative to release/). All required.
+MODEL_FILES = [
+    ("artifacts/vectors/r_hat_A1_en.pt", "model/r_hat_A1_en.pt"),
+    ("artifacts/vectors/r_hat_A2_multi.pt", "model/r_hat_A2_multi.pt"),
+    ("artifacts/vectors/r_hat_per_lang.pt", "model/r_hat_per_lang.pt"),
+    ("artifacts/vectors/mean_norms.pt", "model/mean_norms.pt"),
+    ("artifacts/scores/selected_dev_configs.json", "model/selected_dev_configs.json"),
+    ("configs/experiment.yaml", "model/experiment.yaml"),
+    ("docs/cards/steer_example.py", "model/steer_example.py"),
+    ("docs/cards/model_card.md", "model/README.md"),
+]
+DATASET_FILES = [
+    ("data/curated/dataset.jsonl", "dataset/benchmark_prompts.jsonl"),
+    ("artifacts/v2/stats/stats_tables.md", "dataset/stats/stats_tables.md"),
+    ("artifacts/v2/stats/stats_summary.json", "dataset/stats/stats_summary.json"),
+    ("artifacts/v2/audit/metric_tables.md", "dataset/audit/metric_tables.md"),
+    ("artifacts/v2/audit/v2_audit_summary.json", "dataset/audit/v2_audit_summary.json"),
+    ("artifacts/v2/curation/lexsi_provenance.json", "dataset/curation/lexsi_provenance.json"),
+    ("artifacts/v2/curation/manifest.json", "dataset/curation/manifest.json"),
+    ("artifacts/v2/curation/checksums.txt", "dataset/curation/checksums.txt"),
+    ("artifacts/v2/curation/v2_curation_summary.json", "dataset/curation/v2_curation_summary.json"),
+    ("artifacts/v2/chain_manifest.json", "dataset/run_records/chain_manifest.json"),
+    ("artifacts/HASHES.txt", "dataset/run_records/HASHES.txt"),
+    ("artifacts/scores/dev_sweep_summary.csv", "dataset/run_records/dev_sweep_summary.csv"),
+    ("artifacts/scores/latency_benchmark.json", "dataset/run_records/latency_benchmark.json"),
+    ("docs/cards/dataset_card.md", "dataset/README.md"),
+]
+MANIFEST_DIR = "artifacts/manifests"
+JUDGE_SRC = "artifacts/scores/judge_scores.jsonl"
+JUDGE_DST = "dataset/judge_verdicts.jsonl"
+# Columns that would carry model output. judge_scores.jsonl has none today; this guards the future.
+FORBIDDEN_COLS = {"completion", "pred_A0_base", "pred_A2_multi", "generated_text", "response", "output"}
 
 
-def build_and_verify_release() -> None:
-    rel_dir = ROOT / "release"
-    if rel_dir.exists():
-        shutil.rmtree(rel_dir)
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    model_rel = rel_dir / "model_collection"
-    data_rel = rel_dir / "dataset_collection"
-    model_rel.mkdir(parents=True, exist_ok=True)
-    data_rel.mkdir(parents=True, exist_ok=True)
 
-    # 1. Package Model Collection (unit refusal vectors, probes, frozen config)
-    for pt_file in ["r_hat_A1_en.pt", "r_hat_A2_multi.pt", "r_hat_per_lang.pt", "mean_norms.pt"]:
-        src_p = ROOT / "artifacts" / "vectors" / pt_file
-        if src_p.exists():
-            shutil.copy2(src_p, model_rel / pt_file)
+def copy_required(pairs: list[tuple[str, str]]) -> None:
+    missing = [s for s, _ in pairs if not (ROOT / s).is_file()]
+    if missing:
+        raise FileNotFoundError(f"Release inputs missing (refusing a partial release): {missing}")
+    for src, dst in pairs:
+        out = REL / dst
+        out.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / src, out)
 
-    for probe_file in (ROOT / "artifacts" / "probes").glob("*"):
-        if probe_file.is_file():
-            shutil.copy2(probe_file, model_rel / probe_file.name)
 
-    shutil.copy2(ROOT / "configs" / "experiment.yaml", model_rel / "experiment.yaml")
-    sel_cfg = ROOT / "artifacts" / "scores" / "selected_dev_configs.json"
-    if sel_cfg.exists():
-        shutil.copy2(sel_cfg, model_rel / "selected_dev_configs.json")
+def copy_judge_verdicts() -> None:
+    rows = [json.loads(x) for x in (ROOT / JUDGE_SRC).read_text(encoding="utf-8").splitlines() if x.strip()]
+    bad = FORBIDDEN_COLS & set().union(*(r.keys() for r in rows))
+    if bad:
+        raise RuntimeError(f"judge verdicts contain output columns {bad}; refusing to release")
+    out = REL / JUDGE_DST
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
 
-    # 2. Package Dataset Collection (curated prompts + labels + judge scores + CIs; ZERO raw completions)
-    shutil.copy2(ROOT / "data" / "curated" / "dataset.jsonl", data_rel / "benchmark_prompts.jsonl")
-    shutil.copy2(ROOT / "data" / "curated" / "curation_manifest.json", data_rel / "curation_manifest.json")
 
-    scores_jsonl = ROOT / "artifacts" / "scores" / "judge_scores.jsonl"
-    if scores_jsonl.exists():
-        df_s = pd.read_json(scores_jsonl, lines=True)
-        bad_cols = FORBIDDEN_COLS & set(df_s.columns)
-        if bad_cols:
-            raise RuntimeError(f"SECURITY VIOLATION: Forbidden columns found in judge_scores: {bad_cols}")
-        df_s.to_json(data_rel / "audit_judge_scores.jsonl", orient="records", lines=True, force_ascii=False)
+def verify_release_dir(root: Path, sigs: set[str]) -> dict:
+    """Raise if any file under root contains completion text, a secret or a local path.
 
-    for stat_file in ["final_metrics_table.csv", "capability_chrf.json", "latency_benchmark.json", "dev_sweep_summary.csv"]:
-        sp = ROOT / "artifacts" / "scores" / stat_file
-        if sp.exists():
-            shutil.copy2(sp, data_rel / stat_file)
+    Kept free of global state so tests can point it at a fixture directory.
+    """
+    if not sigs:
+        raise RuntimeError("Leak gate has zero completion signatures; an empty gate proves nothing.")
+    files = sorted(p for p in root.rglob("*") if p.is_file())
+    if not files:
+        raise RuntimeError(f"Nothing to verify under {root}")
+    problems = []
+    for f in files:
+        text = f.read_bytes().decode("utf-8", errors="ignore")
+        flat = " ".join(text.split())
+        # JSON/JSONL store newlines and quotes escaped; undo that so shingles still line up.
+        unescaped = " ".join(text.replace("\\n", " ").replace('\\"', '"').split())
+        if any(s in flat or s in unescaped for s in sigs):
+            problems.append(f"completion text: {f}")
+        if any(re.search(p, text) for p in SECRET_PATTERNS):
+            problems.append(f"secret pattern: {f}")
+        m = re.search(LOCAL_PATH, text)
+        if m:
+            problems.append(f"local path {m.group(0)[:30]!r}: {f}")
+    if problems:
+        raise RuntimeError("Release gate FAILED:\n  " + "\n  ".join(problems))
+    return {"files_scanned": len(files), "signatures": len(sigs)}
 
-    # 3. Hard Leak-Check against artifacts/raw/ completions
-    # Each signature is checked both verbatim and in JSON-escaped form, because
-    # newlines/quotes inside a completion appear escaped (\n, \") in .jsonl/.json files.
-    raw_path = ROOT / "artifacts" / "raw" / "test_generations.jsonl"
-    raw_snippets = []
-    if raw_path.exists():
-        for line in raw_path.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                comp = json.loads(line).get("completion", "").strip()
-                if len(comp) >= 40:
-                    raw_snippets.append(comp[:60])
 
-    signatures = []
-    for snip in raw_snippets:
-        signatures.append(snip)
-        escaped = json.dumps(snip, ensure_ascii=False)[1:-1]
-        if escaped != snip:
-            signatures.append(escaped)
+def build() -> dict:
+    if REL.exists():
+        shutil.rmtree(REL)  # build product only; see module docstring
+    copy_required(MODEL_FILES)
+    copy_required(DATASET_FILES)
+    manifests = sorted((ROOT / MANIFEST_DIR).glob("manifest_*.json"))
+    if len(manifests) < 7:
+        raise FileNotFoundError(f"Expected 7 stage manifests in {MANIFEST_DIR}, found {len(manifests)}")
+    copy_required([(m.relative_to(ROOT).as_posix(), f"dataset/run_records/manifests/{m.name}") for m in manifests])
+    copy_judge_verdicts()
 
-    for file_path in rel_dir.rglob("*"):
-        if file_path.is_file() and file_path.suffix in {".jsonl", ".csv", ".json", ".yaml", ".md"}:
-            text = file_path.read_text(encoding="utf-8", errors="ignore")
-            for sig in signatures:
-                if sig in text:
-                    raise RuntimeError(f"LEAK DETECTED in {file_path}: matched raw completion substring!")
-
-    write_manifest("build_release", {"verified_clean": True, "checked_raw_snippets": len(raw_snippets)})
-    print(f"[OK] Release verified clean (checked {len(raw_snippets)} raw completion signatures). Ready at {rel_dir}")
+    gate = verify_release_dir(REL, completion_signatures())
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    dirty = bool(subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT,
+                                capture_output=True, text=True).stdout.strip())
+    manifest = {
+        "stage": "build_release_v2",
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "git_sha": sha,
+        "dirty": dirty,
+        "gate": gate,
+        "files_sha256": {p.relative_to(REL).as_posix(): sha256(p) for p in sorted(REL.rglob("*")) if p.is_file()},
+    }
+    MANIFEST.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    return manifest
 
 
 if __name__ == "__main__":
-    build_and_verify_release()
+    m = build()
+    print(f"[OK] release/ built and verified: {m['gate']['files_scanned']} files, "
+          f"{m['gate']['signatures']} completion signatures, git {m['git_sha'][:7]}, dirty={m['dirty']}")
