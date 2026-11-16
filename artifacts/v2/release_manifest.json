@@ -1,7 +1,7 @@
 {
   "stage": "build_release_v2",
-  "generated_utc": "2026-11-16T06:19:29.855089+00:00",
-  "git_sha": "f5421c958990b9d6e01c50980280cc45f19e72ad",
+  "generated_utc": "2026-11-16T06:30:43.305032+00:00",
+  "git_sha": "ffba0ad4cda399b63b2627b4927cde81bbd27dde",
   "dirty": false,
   "gate": {
     "files_scanned": 30,
@@ -16,7 +16,7 @@
     "dataset/curation/manifest.json": "c5ed2718dbbfd38f0eb1705af3b8fe48c5b2bb3cae55c223fc667326b5f08852",
     "dataset/curation/v2_curation_summary.json": "4d6edaa6327be731ac6ca53b700dcff3a26a04b3e04975a2c55ade8d56c2fdf6",
     "dataset/judge_verdicts.jsonl": "ac0820db4b459ab71f5736f7fda362cffca39589c73defcfc07c676b93ea43e8",
-    "dataset/README.md": "cfa1a6769a25a74942338744efe8cf03e6e10f1b1cbe1bb6aeace45fc6501d58",
+    "dataset/README.md": "0b8e5751707733a1aa0a65a9e87ac1455a755c7f47c41ab06ee95d6d55ee68f1",
     "dataset/run_records/chain_manifest.json": "167a1c34774bc83ceb11b5f26516c427be43ca8b2e201f422bc6b51f81dce0a9",
     "dataset/run_records/dev_sweep_summary.csv": "cbbc12f0a117bfa34551b2ca666e023ad692f7c3b9ef685507c3cac37d951b9e",
     "dataset/run_records/HASHES.txt": "1311ce6b2312591d545a1dded13706df3b00d077118a32e8b68a163da621dc50",
@@ -35,7 +35,7 @@
     "model/r_hat_A1_en.pt": "a610297c9f32144aa62c21844f55da1639abd842971675d1dafe5f8a49a5466c",
     "model/r_hat_A2_multi.pt": "1a59827cafc7fba12b65ab719f28b69d45de7f2b5300f6ea45b324b961184326",
     "model/r_hat_per_lang.pt": "12f0f70d692f486e5f576bbe18af4da91d048a3a3d1db772436e8fb81eb738f4",
-    "model/README.md": "8805d735c293e7eae8624dba943141fd8c953dc1f4c8f98e6bd1f53972893a3a",
+    "model/README.md": "4262e02e6c9dff1fe37c2d967917ad492db8bdfa4472741a8608f6702dc85bf7",
     "model/selected_dev_configs.json": "25ae75f315939e9e41ead2b71ca62dc013a67b40a63c60d132b219790fa458df",
     "model/steer_example.py": "5390347dbb9efe0f1f4e040aacff6654d85bc794c58c1fd05fb961f839fea40a"
   }
