@@ -1,0 +1,12 @@
+{
+  "en_to_sw": {
+    "A0_base_chrF": 68.49,
+    "A2_multi_chrF": 67.18,
+    "delta_chrF": -1.31
+  },
+  "sw_to_en": {
+    "A0_base_chrF": 75.55,
+    "A2_multi_chrF": 75.55,
+    "delta_chrF": 0.0
+  }
+}

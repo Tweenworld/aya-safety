@@ -1,0 +1,12 @@
+{
+  "A1_en": {
+    "layer": 26,
+    "strength_mult": 0.25,
+    "effective_scale": 18.29
+  },
+  "A2_multi": {
+    "layer": 22,
+    "strength_mult": 0.25,
+    "effective_scale": 14.1381
+  }
+}

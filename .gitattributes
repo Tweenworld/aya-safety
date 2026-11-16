@@ -1,0 +1,3 @@
+# Frozen artifacts: never convert line endings, so artifacts/HASHES.txt stays valid on every checkout.
+artifacts/** -text
+data/curated/dataset.jsonl -text

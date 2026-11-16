@@ -1,0 +1,26 @@
+{
+  "batch_1": {
+    "baseline_median_sec": 2.795,
+    "steered_median_sec": 2.8444,
+    "overhead_pct": 1.77,
+    "steered_tokens_per_sec": 22.5
+  },
+  "batch_4": {
+    "baseline_median_sec": 3.5974,
+    "steered_median_sec": 3.6756,
+    "overhead_pct": 2.17,
+    "steered_tokens_per_sec": 69.65
+  },
+  "batch_8": {
+    "baseline_median_sec": 4.108,
+    "steered_median_sec": 4.2337,
+    "overhead_pct": 3.06,
+    "steered_tokens_per_sec": 120.94
+  },
+  "batch_16": {
+    "baseline_median_sec": 5.3053,
+    "steered_median_sec": 5.3594,
+    "overhead_pct": 1.02,
+    "steered_tokens_per_sec": 191.07
+  }
+}
